@@ -1,0 +1,17 @@
+train:
+  _target_: src.datasets.ASVSpoofDataset
+  audio_dir: ???
+  protocol_path: ???
+  instance_transforms: ${transforms.instance_transforms.train}
+
+val:
+  _target_: src.datasets.ASVSpoofDataset
+  audio_dir: ???
+  protocol_path: ???
+  instance_transforms: ${transforms.instance_transforms.inference}
+
+test:
+  _target_: src.datasets.ASVSpoofDataset
+  audio_dir: ???
+  protocol_path: ???
+  instance_transforms: ${transforms.instance_transforms.inference}
