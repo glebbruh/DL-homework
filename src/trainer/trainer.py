@@ -1,5 +1,10 @@
+import torch
+from tqdm.auto import tqdm
+
+from src.metrics.eer import calculate_eer
 from src.metrics.tracker import MetricTracker
 from src.trainer.base_trainer import BaseTrainer
+
 
 
 class Trainer(BaseTrainer):
@@ -54,6 +59,46 @@ class Trainer(BaseTrainer):
         for met in metric_funcs:
             metrics.update(met.name, met(**batch))
         return batch
+
+    def _evaluation_epoch(self, epoch, part, dataloader):
+        self.is_train = False
+        self.model.eval()
+        self.evaluation_metrics.reset()
+
+        scores = []
+        labels = []
+
+        with torch.no_grad():
+            for batch_idx, batch in tqdm(
+                    enumerate(dataloader),
+                    desc=part,
+                    total=len(dataloader),
+            ):
+                batch = self.process_batch(
+                    batch,
+                    metrics=self.evaluation_metrics,
+                )
+
+                scores.append(batch["logits"][:, 1].detach().cpu())
+                labels.append(batch["labels"].detach().cpu())
+
+            scores = torch.cat(scores)
+            labels = torch.cat(labels)
+
+            eer = calculate_eer(scores, labels)
+
+            self.writer.set_step(epoch * self.epoch_len, part)
+            self._log_scalars(self.evaluation_metrics)
+
+            if self.writer is not None:
+                self.writer.add_scalar("EER", eer)
+
+            self._log_batch(batch_idx, batch, part)
+
+        logs = self.evaluation_metrics.result()
+        logs["EER"] = eer
+
+        return logs
 
     def _log_batch(self, batch_idx, batch, mode="train"):
         """
