@@ -37,5 +37,5 @@ trainer:
   monitor: "min dev_EER"
   save_period: 5
   early_stop: ${trainer.n_epochs}
-  save_dir: "saved"
+  save_dir: "saved/lcnn_asvspoof_ce"
   seed: 1
