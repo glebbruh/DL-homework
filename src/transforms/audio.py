@@ -44,10 +44,11 @@ class LogPowerSpectrogram(nn.Module):
 
 
 class TrimPadFrames(nn.Module):
-    def __init__(self, num_frames=750):
+    def __init__(self, num_frames=750, random_crop=True):
         super().__init__()
 
         self.num_frames = num_frames
+        self.random_crop = random_crop
 
     def forward(self, features):
         current_num_frames = features.shape[-1]
@@ -59,10 +60,13 @@ class TrimPadFrames(nn.Module):
         elif current_num_frames > self.num_frames:
             max_start = current_num_frames - self.num_frames
 
-            start = torch.randint(
-                max_start + 1,
-                size=(1,),
-            ).item()
+            if self.random_crop:
+                start = torch.randint(
+                    max_start + 1,
+                    size=(1,),
+                ).item()
+            else:
+                start = 0
 
             features = features[
                 ...,

@@ -1,0 +1,25 @@
+train:
+  data_object:
+    _target_: torchvision.transforms.v2.Compose
+    transforms:
+      - _target_: src.transforms.LogPowerSpectrogram
+        n_fft: 512
+        win_length: 320
+        hop_length: 160
+
+      - _target_: src.transforms.TrimPadFrames
+        num_frames: 750
+        random_crop: true
+
+inference:
+  data_object:
+    _target_: torchvision.transforms.v2.Compose
+    transforms:
+      - _target_: src.transforms.LogPowerSpectrogram
+        n_fft: 512
+        win_length: 320
+        hop_length: 160
+
+      - _target_: src.transforms.TrimPadFrames
+        num_frames: 750
+        random_crop: false
