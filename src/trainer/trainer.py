@@ -79,7 +79,8 @@ class Trainer(BaseTrainer):
                     metrics=self.evaluation_metrics,
                 )
 
-                scores.append(batch["logits"][:, 1].detach().cpu())
+                bonafide_scores = batch["logits"][:, 1] - batch["logits"][:, 0]
+                scores.append(bonafide_scores.detach().cpu())
                 labels.append(batch["labels"].detach().cpu())
 
             scores = torch.cat(scores)

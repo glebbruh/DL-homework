@@ -138,6 +138,9 @@ class LCNN(nn.Module):
                     nn.init.zeros_(module.bias)
 
     def forward(self, data_object, **batch):
+        if data_object.ndim == 3:
+            data_object = data_object.unsqueeze(1)
+
         features = self.cnn(data_object)
         logits = self.classifier(features)
 
