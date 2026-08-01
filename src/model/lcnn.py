@@ -6,17 +6,10 @@ from src.model.mfm import MFM
 class LCNN(nn.Module):
     def __init__(
         self,
-        input_features=257,
-        hidden_features=60,
         n_classes=2,
         dropout=0.75,
     ):
         super().__init__()
-
-        self.feature_projection = nn.Linear(
-            in_features=input_features,
-            out_features=hidden_features,
-        )
 
         self.cnn = nn.Sequential(
             nn.Conv2d(
@@ -122,7 +115,7 @@ class LCNN(nn.Module):
         self.classifier = nn.Sequential(
             nn.Flatten(),
             nn.Linear(
-                in_features=32 * 3 * 46,
+                in_features=32 * 16 * 46,
                 out_features=160,
             ),
             MFM(),
@@ -145,15 +138,7 @@ class LCNN(nn.Module):
                     nn.init.zeros_(module.bias)
 
     def forward(self, data_object, **batch):
-        features = data_object.squeeze(1)
-        features = features.transpose(1, 2)
-
-        features = self.feature_projection(features)
-
-        features = features.transpose(1, 2)
-        features = features.unsqueeze(1)
-
-        features = self.cnn(features)
+        features = self.cnn(data_object)
         logits = self.classifier(features)
 
         return {"logits": logits}
