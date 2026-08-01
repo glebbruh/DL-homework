@@ -89,11 +89,13 @@ class Trainer(BaseTrainer):
 
             self.writer.set_step(epoch * self.epoch_len, part)
             self._log_scalars(self.evaluation_metrics)
+            self.writer.add_scalar("EER", eer)
 
-            if self.writer is not None:
-                self.writer.add_scalar("EER", eer)
-
-            self._log_batch(batch_idx, batch, part)
+            self._log_batch(
+                batch_idx,
+                batch,
+                part,
+            )
 
         logs = self.evaluation_metrics.result()
         logs["EER"] = eer
